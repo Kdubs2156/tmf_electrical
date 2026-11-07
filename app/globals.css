@@ -1,26 +1,1945 @@
 @import "tailwindcss";
 
+/* ==========================================================================
+   TOKENS
+   Every colour and font lives here. The client's pick is a one-line swap:
+   replace the four colour lines (and the font pair in app/fonts.ts).
+   ========================================================================== */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* ACTIVE: Coldstream pine */
+  --bg: #f4f3ee;
+  --ink: #171a18;
+  --tint: #dfe4db;
+  --accent: #2f4a3c; /* buttons and links only */
+
+  /* Okanagan Lake
+  --bg: #f5f7f6;
+  --ink: #141a1c;
+  --tint: #dce6e5;
+  --accent: #1f5f6b; */
+
+  /* Copper wire
+  --bg: #f7f3ec;
+  --ink: #1c1917;
+  --tint: #ebe3d6;
+  --accent: #a0562f;
+  --on-accent: #ffffff; (white button text: page-colour text misses AA on this accent) */
+
+  /* Work shirt olive
+  --bg: #f6f4ee;
+  --ink: #1a1a18;
+  --tint: #e6e2d6;
+  --accent: #5b6339; */
+
+  /* Basalt
+  --bg: #f7f5f2;
+  --ink: #161412;
+  --tint: #e6e1db;
+  --accent: #4a433d; */
+
+  /* Sampled from the hero photo's sky and water. Sits behind the photo while it loads. Not a palette colour. */
+  --photo-ground: #c3c8c8;
+
+  /* Derived from the four above. Do not set by hand. */
+  --rule: color-mix(in srgb, var(--ink) 22%, transparent);
+  --ink-soft: color-mix(in srgb, var(--ink) 78%, var(--bg));
+
+  /* Fonts (loaded in app/fonts.ts) */
+  --font-display: var(--font-display-loaded), "Arial", system-ui, sans-serif;
+  --font-body: var(--font-body-loaded), system-ui, sans-serif;
+  --display-wdth: 112; /* Archivo width axis. Ignored by fonts without one. */
+
+  /* Layout */
+  --header-h: 4rem;
+  --gutter: 1.5rem;
+  --section-gap: clamp(7rem, 5rem + 8vw, 10rem); /* 112px phone, capped at 160px */
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  /* Surfaces and depth. Client override of the standard: soft ink-tinted shadows, no glow. */
+  --paper: color-mix(in srgb, #fff 55%, var(--bg));
+  --radius-card: clamp(0.875rem, 0.5rem + 1.1vw, 1.25rem); /* 14px phone, 20px desktop */
+  --radius-btn: 12px;
+  /* Text colour on the accent (buttons). The page colour for most palettes;
+     copper needs white to pass AA. */
+  --on-accent: var(--bg);
+  /* Rating stars are gold in every palette: the one exception to the accent rule. */
+  --star-gold: #e9a92b;
+  /* Card description on an accent fill: a touch quieter than the title, still AA. */
+  --svc-desc-on-accent: color-mix(in srgb, var(--on-accent) 90%, var(--accent));
+
+  /* Hero headline tokens. Defaults are Archivo wide. The four lines are fixed,
+     so --hero-em is the widest line in em and keeps the headline from overflowing.
+     A different type pairing only needs these values changed. */
+  --hero-weight: 800;
+  --hero-wdth: 118;
+  --hero-em: 7.38;
+  --hero-max: 5.75rem;
+  --hero-lh: 0.93;
+  --hero-track: -0.02em;
+  --hero-phone: 2.75rem;
+  --hero-col: 38.75rem; /* widest the copy column gets */
+  --hero-rest-extra: 0rem; /* extra height allowance for taller type */
+
+  /* One vertical rhythm for every section: heading, then intro, then content. */
+  --gap-heading-intro: clamp(0.75rem, 0.6rem + 0.5vw, 1rem); /* 12px phone, 16px at 1440 */
+  --gap-intro-content: clamp(2rem, 1.6rem + 1.2vw, 2.5rem); /* 32px phone, 40px at 1440 */
+  --gap-after-content: 1.75rem; /* a quiet row under a block of content */
+  --gap-grid: clamp(1rem, 0.8rem + 0.7vw, 1.5rem); /* between cards and columns */
+  --card-pad: clamp(1.75rem, 1.6rem + 0.4vw, 2rem); /* inside every card */
+  --gap-feature: clamp(2.75rem, 2.2rem + 1.6vw, 3.5rem); /* breathing room around the reviews cards: 44px phone, 56px at 1440 */
+  --shadow-card:
+    0 1px 2px color-mix(in srgb, var(--ink) 8%, transparent),
+    0 6px 14px -4px color-mix(in srgb, var(--ink) 8%, transparent),
+    0 24px 48px -16px color-mix(in srgb, var(--ink) 18%, transparent);
+  --shadow-card-hover:
+    0 2px 4px color-mix(in srgb, var(--ink) 8%, transparent),
+    0 12px 24px -6px color-mix(in srgb, var(--ink) 12%, transparent),
+    0 32px 56px -16px color-mix(in srgb, var(--ink) 22%, transparent);
+}
+
+@media (min-width: 48rem) {
+  :root {
+    --gutter: 2.5rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  :root {
+    --header-h: 5rem;
+  }
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-canvas: var(--bg);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-tint: var(--tint);
+  --color-accent: var(--accent);
+  --color-rule: var(--rule);
+  --font-sans: var(--font-body);
+  --font-heading: var(--font-display);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ==========================================================================
+   BASE
+   ========================================================================== */
+html {
+  color-scheme: light;
+  scroll-padding-top: calc(var(--header-h) + 1rem);
+  overflow-x: clip;
+  -webkit-text-size-adjust: 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 1.125rem;
+  line-height: 1.65;
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.on-dark :focus-visible {
+  outline-color: var(--bg);
+}
+
+::selection {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+.wrap {
+  width: 100%;
+  max-width: 92.5rem;
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* ==========================================================================
+   TYPE
+   ========================================================================== */
+.t-display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-variation-settings: "wdth" var(--display-wdth);
+  font-synthesis: none;
+  letter-spacing: -0.005em;
+  line-height: 1.08;
+  text-wrap: balance;
+}
+
+.t-hero {
+  font-size: clamp(1.75rem, 1rem + 2.9vw, 3rem);
+  line-height: 1.07;
+}
+
+.t-statement {
+  font-size: clamp(2.25rem, 1.4rem + 2.4vw, 3.5rem);
+  line-height: 1.1;
+}
+
+.t-section {
+  font-size: clamp(1.375rem, 1.2rem + 0.9vw, 1.875rem);
+  line-height: 1.2;
+}
+
+.t-caption {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+/* The one small label style. Used above the hero headline only. */
+.t-label {
+  font-size: 0.75rem;
+  line-height: 1.5;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+@media (min-width: 48rem) {
+  .t-label {
+    font-size: 0.8125rem;
+    letter-spacing: 0.2em;
+  }
+}
+
+.prose {
+  max-width: 62ch;
+}
+
+/* The intro line under a section heading. Same gap and size in every section. */
+.section-intro {
+  margin-top: var(--gap-heading-intro);
+  font-size: 1.125rem;
+  line-height: 1.6;
+}
+
+.prose p + p {
+  margin-top: 1em;
+}
+
+/* ==========================================================================
+   LINKS AND BUTTONS (the only places the accent appears)
+   ========================================================================== */
+.link {
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.28em;
+  transition: color 300ms var(--ease);
+}
+
+.link:hover {
+  color: var(--accent);
+}
+
+.tap {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+}
+
+/* The one button system (components/Button.tsx). Client override of the
+   standard: a 6% sheen and soft accent- or ink-tinted depth, no glow. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  height: 3.25rem; /* 52px */
+  padding: 0 1.5rem;
+  border: 0;
+  border-radius: var(--radius-btn);
+  font: inherit;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform 180ms var(--ease),
+    box-shadow 180ms var(--ease);
+}
+
+.btn-sm {
+  height: 3rem; /* 48px */
+  font-size: 1rem;
+}
+
+.btn-primary {
+  color: var(--on-accent);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, #fff 6%, var(--accent)),
+    var(--accent)
+  );
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.15),
+    0 1px 2px color-mix(in srgb, var(--accent) 40%, transparent),
+    0 8px 20px -6px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.btn-primary:hover {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.15),
+    0 2px 4px color-mix(in srgb, var(--accent) 45%, transparent),
+    0 14px 28px -8px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.btn-primary:active {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.1),
+    0 1px 1px color-mix(in srgb, var(--accent) 50%, transparent);
+}
+
+.btn-secondary {
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.7),
+    0 1px 2px color-mix(in srgb, var(--ink) 10%, transparent),
+    0 8px 20px -8px color-mix(in srgb, var(--ink) 18%, transparent);
+}
+
+.btn-secondary:hover {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.7),
+    0 2px 4px color-mix(in srgb, var(--ink) 12%, transparent),
+    0 14px 28px -8px color-mix(in srgb, var(--ink) 24%, transparent);
+}
+
+.btn-secondary:active {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.5),
+    0 1px 1px color-mix(in srgb, var(--ink) 14%, transparent);
+}
+
+/* Lift on hover only when motion is welcome. Shadows still change otherwise. */
+@media (prefers-reduced-motion: no-preference) {
+  .btn:hover {
+    transform: translateY(-2px);
+  }
+  .btn:active {
+    transform: none;
+  }
+  .btn .arrow {
+    transition: transform 180ms var(--ease);
+  }
+  .btn:hover .arrow {
+    transform: translateY(3px);
+  }
+}
+
+/* ==========================================================================
+   RULED LABEL AND VALUE ROWS (menu drawer)
+   ========================================================================== */
+.ruled > div {
+  display: grid;
+  grid-template-columns: 7.25rem 1fr;
+  gap: 1rem;
+  align-items: baseline;
+  padding-block: 0.7rem;
+  border-top: 1px solid var(--rule);
+}
+
+.ruled > div:last-child {
+  border-bottom: 1px solid var(--rule);
+}
+
+.ruled dt {
+  font-size: 0.9375rem;
+  color: var(--ink-soft);
+}
+
+.ruled dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   HEADER
+   ========================================================================== */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: var(--bg);
+  border-bottom: 1px solid transparent;
+  transition: border-color 200ms var(--ease);
+}
+
+.site-header[data-scrolled="true"] {
+  border-bottom-color: var(--rule);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  height: var(--header-h);
+}
+
+.logo-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+}
+
+.logo-link svg {
+  height: 2.5rem;
+  width: auto;
+}
+
+@media (min-width: 64rem) {
+  .logo-link svg {
+    height: 2.875rem;
+  }
+}
+
+.nav-links {
+  display: none;
+  align-items: center;
+  gap: 1.75rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+@media (min-width: 64rem) {
+  .nav-links {
+    display: flex;
+  }
+  .header-mobile {
+    display: none !important;
+  }
+}
+
+@media (min-width: 64rem) and (max-width: 74.99rem) {
+  .nav-links {
+    gap: 1.25rem;
+  }
+}
+
+@media (min-width: 75rem) {
+  .nav-links {
+    gap: 2.5rem;
+  }
+}
+
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.4em;
+  transition: text-decoration-color 200ms var(--ease);
+}
+
+.nav-link:hover,
+.nav-link[aria-current="page"] {
+  text-decoration-color: currentColor;
+}
+
+.header-actions {
+  display: none;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+@media (min-width: 64rem) {
+  .header-actions {
+    display: flex;
+  }
+}
+
+.header-mobile {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  background: transparent;
+  color: inherit;
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.drawer {
+  position: fixed;
+  inset: 0 0 0 auto;
+  width: min(22.5rem, 100%);
+  max-width: 100%;
+  height: 100dvh;
+  max-height: 100dvh;
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--ink);
+  border: 0;
+  border-left: 1px solid var(--rule);
+}
+
+.drawer::backdrop {
+  background: color-mix(in srgb, var(--ink) 55%, transparent);
+}
+
+.drawer-body {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1rem 1.5rem 2rem;
+}
+
+.drawer-links a {
+  display: block;
+  padding: 0.85rem 0;
+  border-top: 1px solid var(--rule);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-variation-settings: "wdth" var(--display-wdth);
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.drawer-links li:last-child a {
+  border-bottom: 1px solid var(--rule);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .drawer[open] {
+    animation: drawer-in 250ms var(--ease) both;
+  }
+  .drawer[open]::backdrop {
+    animation: fade-in 250ms var(--ease) both;
+  }
+}
+
+@keyframes drawer-in {
+  from {
+    opacity: 0;
+    transform: translateX(1.5rem);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
+   HERO
+   Desktop (1200px and up): full-width photo anchored left, copy over the calm
+   right-hand side, trust bar on a solid strip underneath.
+   Below 1200px: photo, then copy, then trust facts, stacked.
+   ========================================================================== */
+.hero {
+  --bar-h: 6.5rem;
+  /* Scrim: a very soft wash of the page colour behind the copy only. */
+  --scrim-a: 18%;
+  --scrim-b: 42%;
+  /* 760px at 1440 rising to 840px at 1920, capped at the screen below the header. */
+  --hero-total: max(
+    36rem,
+    min(clamp(47.5rem, 32.5rem + 16.67vw, 52.5rem), 100svh - var(--header-h) - 1px) /* 1px: header border */
+  );
+}
+
+.hero-main {
+  position: relative;
+}
+
+.hero-media {
+  position: relative;
+}
+
+.hero-photo {
+  position: relative;
+  overflow: hidden;
+  background: var(--photo-ground);
+  /* Phone: short enough that the button stays above the fold on 375x667. */
+  height: clamp(13.75rem, calc(100svh - var(--header-h) - 21.3rem), 125vw);
+}
+
+.hero-img-wrap {
+  position: absolute;
+  inset: 0;
+  transform-origin: 30% 50%;
+}
+
+.hero-img {
+  object-fit: cover;
+  object-position: 12% 35%; /* phone: Taylor plus most of the TMF lettering */
+}
+
+.hero-scrim {
+  display: none;
+}
+
+@media (min-width: 40rem) {
+  .hero-photo {
+    height: auto;
+    aspect-ratio: 2240 / 959; /* the whole photo, no crop */
+  }
+  .hero-img {
+    object-position: 0% 50%;
+  }
+}
+
+/* Google rating badge: horizontal white card.
+   Phones and tablets: over the sky at the top left of the photo (clear of
+   Taylor and the van lettering). 1200 to 1519px: in the copy column under the
+   buttons. 1520px and up: right of Taylor's head in the open sky. */
+.hero-badge {
+  position: absolute;
+  z-index: 2;
+  left: 0.75rem;
+  top: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.875rem;
+  background: #fff;
+  color: var(--ink);
+  border-radius: 0.875rem;
+  box-shadow:
+    0 1px 2px color-mix(in srgb, var(--ink) 14%, transparent),
+    0 12px 32px color-mix(in srgb, var(--ink) 18%, transparent);
+  line-height: 1.2;
+}
+
+.hero-badge-score {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-variation-settings: "wdth" 112;
+  font-size: 1.875rem;
+  line-height: 1;
+}
+
+.hero-badge-meta {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.hero-badge-stars {
+  display: block;
+  color: var(--star-gold);
+  line-height: 0;
+}
+
+.hero-badge-stars svg {
+  display: block;
+  width: 4.75rem;
+  height: auto;
+}
+
+.hero-badge-text {
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+@media (min-width: 40rem) {
+  .hero-badge {
+    left: 1.5rem;
+    top: 1.25rem;
+  }
+}
+
+/* Copy ------------------------------------------------------------------ */
+.hero-copy {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem var(--gutter) 1.5rem;
+}
+
+/* Headline sizes come from tokens (defaults in :root, set per type pairing by
+   the concept style switcher). Four fixed lines, so these never overflow. */
+.hero-title {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-display);
+  font-weight: var(--hero-weight);
+  font-variation-settings: "wdth" var(--hero-wdth);
+  font-synthesis: none;
+  font-size: min(
+    var(--hero-phone),
+    calc((100vw - 2 * var(--gutter)) / var(--hero-em))
+  );
+  line-height: var(--hero-lh);
+  letter-spacing: var(--hero-track);
+}
+
+@media (min-width: 40rem) {
+  .hero-title {
+    font-size: clamp(2.875rem, 8vw, 4.5rem);
+  }
+}
+
+/* Each line sits in its own clip mask so it can slide up from behind it.
+   The padding keeps descenders and the comma from being cut off. */
+.hero-line {
+  display: block;
+  overflow: hidden;
+  padding-block: 0.1em;
+  margin-block: -0.1em;
+  white-space: nowrap;
+}
+
+.hero-line > span {
+  display: block;
+}
+
+.hero-actions {
+  order: 2;
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.25rem;
+}
+
+.hero-actions .btn {
+  width: 100%;
+}
+
+.hero-lede {
+  order: 3;
+  margin-top: 1rem;
+  max-width: 62ch;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+
+@media (min-width: 40rem) {
+  .hero-copy {
+    padding-top: 1.5rem;
+  }
+  .hero-lede {
+    order: 0;
+    margin-top: 1.25rem;
+    font-size: 1.125rem;
+  }
+  .hero-actions {
+    order: 0;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1.5rem;
+    margin-top: 1.5rem;
+  }
+  .hero-actions .btn {
+    width: auto;
+  }
+}
+
+/* Trust bar: four short facts, bold, even columns, thin dividers. */
+.hero-bar {
+  padding-top: 1.5rem;
+}
+
+.hero-facts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+
+.hero-fact {
+  display: flex;
+  flex-direction: column;
+  padding: 0.875rem 0;
+  border-top: 1px solid var(--rule);
+}
+
+.hero-fact:first-child {
+  border-top: 0;
+}
+
+.hero-fact b {
+  font-weight: 700;
+  font-size: 1.0625rem;
+  line-height: 1.3;
+}
+
+.hero-fact span {
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
+}
+
+@media (min-width: 40rem) {
+  .hero-facts {
+    grid-template-columns: 1fr 1fr;
+  }
+  .hero-fact {
+    padding: 1rem 1.5rem 1rem 0;
+    border-top: 0;
+  }
+  .hero-fact:nth-child(even) {
+    padding-left: 1.5rem;
+    border-left: 1px solid var(--rule);
+  }
+  .hero-fact:nth-child(n + 3) {
+    border-top: 1px solid var(--rule);
+  }
+}
+
+/* Desktop overlay ------------------------------------------------------- */
+@media (min-width: 75rem) {
+  .hero-main {
+    height: calc(var(--hero-total) - var(--bar-h));
+    container-type: size;
+  }
+
+  .hero-media,
+  .hero-copy {
+    /* px per source pixel, so the photo's features can be located in CSS. */
+    --s: max(100cqw / 2240, 100cqh / 959);
+    --edge: calc(max(0px, (100cqw - 92.5rem) / 2) + var(--gutter));
+    --right: calc(100cqw - var(--edge)); /* right edge of the content column */
+    --badge-w: 15.5rem;
+    /* Copy starts clear of Taylor's shoulder and is never wider than 620px. */
+    --left: max(calc(var(--s) * 975 + 2rem), calc(var(--right) - var(--hero-col)));
+    /* Height the headline must leave for everything else in the column. */
+    --hero-rest: calc(21rem + var(--hero-rest-extra));
+  }
+
+  .hero-media {
+    position: absolute;
+    inset: 0;
+  }
+
+  .hero-photo {
+    position: absolute;
+    inset: 0;
+    height: auto;
+    aspect-ratio: auto;
+  }
+
+  .hero-img {
+    object-position: 0% 35%; /* anchored left: Taylor and the van never leave the screen */
+  }
+
+  .hero-scrim {
+    display: block;
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--bg) 0.5%, transparent) calc(var(--left) - 12cqw),
+      color-mix(in srgb, var(--bg) var(--scrim-a), transparent) var(--left),
+      color-mix(in srgb, var(--bg) var(--scrim-b), transparent) 100%
+    );
+  }
+
+  .hero-copy {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--left);
+    right: var(--edge);
+    padding: 0;
+    justify-content: center;
+  }
+
+  .hero-title {
+    margin-top: 1.1rem;
+    font-size: min(
+      var(--hero-max),
+      calc((100cqh - var(--hero-rest)) / (4 * var(--hero-lh))),
+      calc((var(--right) - var(--left)) / var(--hero-em))
+    );
+  }
+
+  .hero-lede {
+    margin-top: 1.25rem;
+  }
+  .hero-actions {
+    margin-top: 1.5rem;
+  }
+
+  /* 1200 to 1519px: the badge sits in the column on its own row, left-aligned,
+     under the buttons. */
+  .hero-badge {
+    position: static;
+    align-self: flex-start;
+    margin-top: var(--gap-heading-intro);
+  }
+  .hero-badge-score {
+    font-size: 2rem;
+  }
+
+  .hero-bar {
+    height: var(--bar-h);
+    padding-top: 0;
+  }
+  .hero-facts {
+    height: 100%;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: stretch;
+  }
+  .hero-fact,
+  .hero-fact:nth-child(even),
+  .hero-fact:nth-child(n + 3) {
+    justify-content: center;
+    padding: 0 1.5rem;
+    border-top: 0;
+    border-left: 1px solid var(--rule);
+  }
+  .hero-fact:first-child {
+    padding-left: 0;
+    border-left: 0;
+  }
+  .hero-fact b {
+    font-size: 1.125rem;
+  }
+}
+
+@media (min-width: 90rem) {
+  .hero-lede {
+    font-size: 1.1875rem;
+  }
+}
+
+/* 1280 to 1519px: more of the column height goes to the headline. */
+@media (min-width: 80rem) and (max-width: 94.99rem) {
+  .hero-media,
+  .hero-copy {
+    --hero-rest: calc(18.5rem + var(--hero-rest-extra));
+  }
+}
+
+/* 1520px and up: the badge leaves the column and sits right of Taylor's head,
+   in the open sky, kept 28px clear of the copy. It is positioned against the
+   copy block, so its offsets subtract --left. */
+@media (min-width: 95rem) {
+  .hero-media,
+  .hero-copy {
+    --hero-rest: calc(17.5rem + var(--hero-rest-extra));
+  }
+  .hero-badge {
+    position: absolute;
+    width: var(--badge-w);
+    left: calc(
+      min(
+          calc(var(--s) * 800 + 1.25rem),
+          calc(var(--left) - var(--badge-w) - 1.75rem)
+        ) - var(--left)
+    );
+    top: calc(var(--s) * 70);
+    margin-top: 0;
+    padding: 0.75rem 1rem;
+    border-radius: 1rem;
+  }
+  .hero-badge-score {
+    font-size: 2.625rem;
+  }
+  .hero-badge-stars svg {
+    width: 5.5rem;
+  }
+  .hero-badge-text {
+    font-size: 0.8125rem;
+  }
+}
+
+/* Motion (level 2): one curve, about 1.2s in total. The default state is
+   always the final state, so reduced motion gets no movement at all. */
+@media (prefers-reduced-motion: no-preference) {
+  .hero-img-wrap {
+    animation: hero-photo-in 1200ms var(--ease) both;
+  }
+  .hero-line > span {
+    animation: hero-line-in 700ms var(--ease) calc(150ms + var(--i) * 80ms) both;
+  }
+  .hero-rise {
+    animation: hero-rise 600ms var(--ease) var(--d, 300ms) both;
+  }
+  .hero-badge {
+    animation: hero-rise 600ms var(--ease) 500ms both;
+  }
+  .hero-fact {
+    animation: fade-in 400ms var(--ease) calc(650ms + var(--i) * 60ms) both;
+  }
+}
+
+/* The photo starts at 0.01, not 0, so the browser can still count it as the
+   largest paint. */
+@keyframes hero-photo-in {
+  from {
+    opacity: 0.01;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes hero-line-in {
+  from {
+    transform: translateY(105%);
+  }
+}
+
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+/* ==========================================================================
+   PHONE CONTACT (components/PhoneContact.tsx)
+   The number is always readable text with a small Copy button. Call and Text
+   buttons show only on phones: (max-width: 699px) AND (pointer: coarse).
+   ========================================================================== */
+.pc {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.pc-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
+/* The number is the control: a click copies it (not on phones, where it calls). */
+.pc-numwrap {
+  position: relative;
+  display: inline-block;
+}
+
+.pc-num {
+  text-decoration: underline dotted;
+  text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.28em;
+  cursor: copy;
+  transition: text-decoration-color 180ms var(--ease);
+}
+
+.pc-num:hover {
+  text-decoration-style: solid;
+  text-decoration-color: var(--accent);
+}
+
+/* Small info bubble above the number. It fades out when it is done. */
+.pc-bubble {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 0.5rem);
+  transform: translate(-50%, 4px);
+  padding: 0.3rem 0.625rem;
+  border-radius: 8px;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 0 4px 14px -4px color-mix(in srgb, var(--ink) 40%, transparent);
+}
+
+.pc-bubble::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  width: 8px;
+  height: 8px;
+  background: inherit;
+  transform: translate(-50%, -4px) rotate(45deg);
+  border-radius: 0 0 2px 0;
+}
+
+.pc-bubble[data-show="true"] {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pc-bubble {
+    transition:
+      opacity 220ms var(--ease),
+      transform 220ms var(--ease);
+  }
+}
+
+.pc-actions {
+  display: none;
+  gap: 0.5rem;
+}
+
+.pc-actions .btn {
+  flex: 1;
+}
+
+@media (max-width: 699px) and (pointer: coarse) {
+  .pc-actions {
+    display: flex;
+  }
+  /* Where Call and Text sit beside the number, drop the words "Call or text". */
+  .pc-label {
+    display: none;
+  }
+  /* The hero shows the buttons only. The number lives in contact and footer. */
+  .pc--hero .pc-line {
+    display: none;
+  }
+}
+
+/* Header */
+.pc--header {
+  flex-direction: row;
+  padding-left: 1.5rem;
+  border-left: 1px solid var(--rule);
+}
+
+.pc--header .pc-line {
+  font-size: 1rem;
+}
+
+.pc--header .pc-bubble,
+.pc--header-mobile .pc-bubble {
+  bottom: auto;
+  top: calc(100% + 0.5rem);
+  transform: translate(-50%, -4px);
+}
+
+.pc--header .pc-bubble[data-show="true"],
+.pc--header-mobile .pc-bubble[data-show="true"] {
+  transform: translate(-50%, 0);
+}
+
+.pc--header .pc-bubble::after,
+.pc--header-mobile .pc-bubble::after {
+  top: auto;
+  bottom: 100%;
+  transform: translate(-50%, 4px) rotate(45deg);
+  border-radius: 2px 0 0 0;
+}
+
+.header-mobile .pc--header-mobile {
+  display: none;
+}
+
+.pc--header-mobile .pc-line {
+  font-size: 0.9375rem;
+}
+
+@media (min-width: 700px) and (max-width: 1023.98px) {
+  .header-mobile .pc--header-mobile {
+    display: flex;
+  }
+  .header-mobile .icon-btn-call {
+    display: none;
+  }
+}
+
+/* Footer: quieter, outline Copy */
+.site-footer .pc-line {
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.site-footer .pc-bubble {
+  background: var(--bg);
+  color: var(--ink);
+}
+
+/* ==========================================================================
+   STORY: the one tint on the page, a bounded panel with the portrait card
+   floating over its top edge and a smaller on-site card over the portrait.
+   Two photos of Taylor: both need the client to confirm they are him.
+   ========================================================================== */
+.story {
+  padding-top: calc(var(--section-gap) * 1.1);
+}
+
+.story-panel {
+  position: relative;
+  display: grid;
+  padding: 0 1.25rem 2rem;
+  background: var(--tint);
+  border-radius: calc(var(--radius-card) * 1.4);
+}
+
+.story-text .prose {
+  max-width: 58ch;
+}
+
+.story-media {
+  position: relative;
+  width: min(78%, 21rem);
+  margin: -3rem auto 3.75rem;
+}
+
+.story-card {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  background: var(--tint);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.story-card img {
+  object-fit: cover;
+  object-position: 46% 50%;
+  filter: grayscale(1);
+}
+
+.story-site {
+  position: absolute;
+  right: -14%;
+  bottom: -2.25rem;
+  width: 48%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: var(--tint);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  outline: 3px solid var(--paper);
+}
+
+/* Zoom in on his shoulders, hands and shirt. */
+.story-site img {
+  object-fit: cover;
+  object-position: 50% 40%;
+  transform: scale(1.55);
+  transform-origin: 58% 36%;
+}
+
+@media (min-width: 64rem) {
+  .story-panel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: center;
+    padding: 0 0 3.5rem;
+  }
+  .story-media {
+    width: min(calc(100% - clamp(3.5rem, 7vw, 7rem) - 4rem), 26.25rem);
+    margin: -5rem 0 0 clamp(3.5rem, 7vw, 7rem);
+  }
+  .story-site {
+    right: -4rem;
+    bottom: -1.5rem;
+    width: min(13.75rem, 52%);
+  }
+  /* Starts on the same column as the contact form below. */
+  .story-text {
+    padding: 3.5rem clamp(3rem, 6vw, 6rem) 0 calc(var(--gap-grid) / 2);
+  }
+}
+
+/* ==========================================================================
+   SERVICES: six paper cards. Content is top-aligned. From 768px every title
+   reserves two lines so descriptions start on the same line across a row.
+   ========================================================================== */
+.services {
+  padding-top: calc(var(--section-gap) * 0.8);
+}
+
+.svc-grid {
+  display: grid;
+  gap: var(--gap-grid);
+  margin: var(--gap-intro-content) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 48rem) {
+  .svc-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: 1fr;
+  }
+}
+
+@media (min-width: 75rem) {
+  .svc-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.svc-grid > li {
+  display: flex;
+}
+
+.svc {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: var(--card-pad);
+  background-color: var(--paper);
+  color: var(--ink);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  text-decoration: none;
+  transition:
+    transform 220ms var(--ease),
+    box-shadow 220ms var(--ease),
+    background-color 220ms var(--ease),
+    color 220ms var(--ease);
+}
+
+/* Hover and keyboard focus: the whole card fills with the palette accent and
+   the icon, title and text switch to the on-accent colour. Tokens only, so the
+   style switcher recolours it. Touch devices (hover: none) never get the fill. */
+.svc:focus-visible {
+  background-color: var(--accent);
+  color: var(--on-accent);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.svc:focus-visible .svc-desc {
+  color: var(--svc-desc-on-accent);
+}
+
+@media (hover: hover) {
+  .svc:hover {
+    background-color: var(--accent);
+    color: var(--on-accent);
+    box-shadow: var(--shadow-card-hover);
+  }
+  .svc:hover .svc-desc {
+    color: var(--svc-desc-on-accent);
+  }
+}
+
+/* Lift only when motion is welcome. Reduced motion gets the colour change alone. */
+@media (prefers-reduced-motion: no-preference) {
+  .svc:focus-visible {
+    transform: translateY(-4px);
+  }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .svc:hover {
+    transform: translateY(-4px);
+  }
+}
+
+.svc-icon {
+  flex: none;
+  width: 1.875rem;
+  height: 1.875rem;
+  color: inherit;
+}
+
+/* Keep the stroke at exactly 1.5px whatever the icon size. */
+.svc-icon * {
+  vector-effect: non-scaling-stroke;
+}
+
+.svc-label {
+  display: block;
+  padding-top: 1.25rem;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-variation-settings: "wdth" var(--display-wdth);
+  font-synthesis: none;
+  font-size: clamp(1.5rem, 1.1rem + 1vw, 2rem);
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+/* Two lines of title height (plus the padding above it) on every card. */
+@media (min-width: 48rem) {
+  .svc-label {
+    min-height: calc(2 * 1.08em + 1.25rem);
+  }
+}
+
+.svc-desc {
+  display: block;
+  margin-top: 0.75rem;
+  max-width: 36ch;
+  font-size: 1.0625rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  transition: color 220ms var(--ease);
+}
+
+/* Commercial: a final, quieter row. No card, no shadow. */
+.commercial {
+  display: block;
+  margin-top: var(--gap-after-content);
+  color: var(--ink-soft);
+}
+
+.commercial:hover {
+  color: var(--ink);
+}
+
+/* ==========================================================================
+   RECENT WORK: one large lead card plus three smaller cards.
+   Phone: lead, wide card, then two squares. 768px and up: lead on the left at
+   full height, wide card on top right, two squares under it.
+   ========================================================================== */
+.work {
+  padding-top: var(--section-gap);
+}
+
+.work-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--gap-grid);
+  margin-top: var(--gap-intro-content);
+  align-items: stretch;
+}
+
+.work-fig {
+  margin: 0;
+}
+
+.work-fig--lead,
+.work-fig--wide {
+  grid-column: 1 / -1;
+}
+
+.work-img {
+  position: relative;
+  overflow: hidden;
+  background: var(--tint);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  transition:
+    transform 250ms var(--ease),
+    box-shadow 250ms var(--ease);
+}
+
+.work-fig--lead .work-img {
+  aspect-ratio: 4 / 5;
+}
+
+.work-fig--wide .work-img {
+  aspect-ratio: 16 / 10;
+}
+
+.work-fig--small .work-img {
+  aspect-ratio: 1 / 1;
+}
+
+.work-img img {
+  object-fit: cover;
+}
+
+.work-fig:hover .work-img {
+  box-shadow: var(--shadow-card-hover);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .work-fig:hover .work-img {
+    transform: translateY(-4px);
+  }
+}
+
+.work-cap {
+  margin-top: 0.875rem;
+  max-width: 40ch;
+  font-size: 0.9375rem; /* 15px on phones */
+  line-height: 1.45;
+  color: var(--ink-soft);
+}
+
+@media (min-width: 48rem) {
+  .work-grid {
+    grid-template-columns: 7fr 2.5fr 2.5fr;
+  }
+  .work-fig--lead {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    display: flex;
+    flex-direction: column;
+  }
+  .work-fig--lead .work-img {
+    aspect-ratio: auto;
+    flex: 1;
+  }
+  .work-fig--wide {
+    grid-column: 2 / 4;
+  }
+  .work-cap {
+    min-height: 3em; /* two lines, so image bottoms line up */
+    font-size: 1rem; /* 16px from tablet up */
+  }
+  .work-fig--wide .work-cap {
+    min-height: 0;
+  }
+}
+
+/* ==========================================================================
+   REVIEWS: page colour. Rating and button on one row, three quote cards,
+   then one quiet business line. Testimonials need client approval.
+   ========================================================================== */
+.reviews {
+  padding-top: var(--section-gap);
+}
+
+.reviews-head {
+  display: grid;
+  gap: var(--gap-intro-content);
+}
+
+@media (min-width: 64rem) {
+  .reviews-head {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 4rem;
+  }
+  .reviews-head h2 {
+    max-width: 13em;
+  }
+}
+
+.reviews-proof {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.5rem;
+}
+
+.reviews-score {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-variation-settings: "wdth" var(--display-wdth);
+  font-size: clamp(4.5rem, 3rem + 4vw, 6.5rem);
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+}
+
+.reviews-meta {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.reviews-stars {
+  display: block;
+  color: var(--star-gold);
+  line-height: 0;
+}
+
+.reviews-stars svg {
+  display: block;
+  width: 7rem;
+  height: auto;
+}
+
+.review-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--gap-grid);
+  margin-top: var(--gap-feature);
+}
+
+@media (min-width: 48rem) {
+  .review-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.review-card {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: var(--card-pad);
+  background: var(--paper);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+/* A single line above each quote: five small gold stars and a muted source label. */
+.review-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: var(--gap-heading-intro);
+  line-height: 1;
+}
+
+.review-stars {
+  color: var(--star-gold);
+  line-height: 0;
+}
+
+.review-stars svg {
+  display: block;
+  height: 15px;
+  width: auto;
+}
+
+.review-source {
+  font-size: 0.8125rem;
+  line-height: 1.2;
+  color: var(--ink-soft);
+}
+
+.review-card blockquote {
+  margin: 0 0 var(--gap-after-content);
+  font-size: 1.1875rem; /* 19px on phones */
+  line-height: 1.55;
+}
+
+@media (min-width: 64rem) {
+  .review-card blockquote {
+    font-size: 1.25rem;
+  }
+}
+
+.review-card figcaption {
+  margin-top: auto;
+  line-height: 1.35;
+}
+
+.review-card b {
+  display: block;
+}
+
+.review-card figcaption span {
+  font-size: 0.9375rem;
+  color: var(--ink-soft);
+}
+
+/* One local business, set apart from the homeowner reviews. */
+.reviews-local {
+  max-width: 46rem;
+  margin: var(--gap-feature) 0 0;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--rule);
+}
+
+.reviews-local-label {
+  margin: 0 0 0.625rem;
+  font-size: 0.8125rem;
+  line-height: 1.2;
+  color: var(--ink-soft);
+}
+
+.reviews-local blockquote {
+  margin: 0;
+  font-size: 1.125rem;
+  line-height: 1.55;
+}
+
+.reviews-local figcaption {
+  margin-top: 0.25rem;
+  font-size: 0.9375rem;
+  color: var(--ink-soft);
+}
+
+/* ==========================================================================
+   CONTACT: heading and phone beside a floating form card, on the same two
+   columns as the About panel.
+   ========================================================================== */
+.contact {
+  padding-top: calc(var(--section-gap) * 0.85);
+}
+
+.contact-grid {
+  display: grid;
+  gap: 2.5rem;
+}
+
+@media (min-width: 64rem) {
+  .contact-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--gap-grid);
+    align-items: start;
+  }
+}
+
+.contact-phone {
+  margin-top: var(--gap-intro-content);
+}
+
+.contact-callout {
+  display: block;
+  margin-bottom: 0.375rem;
+  font-size: 0.9375rem;
+  color: var(--ink-soft);
+}
+
+.contact-phone .pc-line {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* The hint says what a click does. It only shows where a click or tap copies
+   (not on phones, where the number calls). */
+.contact-hint {
+  display: none;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--ink-soft);
+}
+
+.hint-click,
+.hint-tap {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .contact-hint,
+  .hint-click {
+    display: block;
+  }
+}
+
+@media (hover: none) and (min-width: 700px) and (min-height: 501px) {
+  .contact-hint,
+  .hint-tap {
+    display: block;
+  }
+}
+
+@media (max-width: 699px) and (pointer: coarse) {
+  .contact-callout {
+    display: none;
+  }
+  .contact-phone .pc-line {
+    font-size: 1.375rem;
+  }
+}
+
+.contact-hours {
+  margin-top: var(--gap-heading-intro);
+  font-size: 0.9375rem;
+  color: var(--ink-soft);
+}
+
+.heading-break {
+  display: block;
+  text-wrap: balance;
+}
+
+@media (min-width: 40rem) {
+  .heading-break {
+    display: inline;
+  }
+}
+
+.form-card {
+  padding: var(--card-pad);
+  background: var(--paper);
+  border-radius: calc(var(--radius-card) * 1.2);
+  box-shadow: var(--shadow-card);
+}
+
+@media (min-width: 64rem) {
+  .form-card {
+    padding: calc(var(--card-pad) * 1.25);
+  }
+}
+
+.field {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.field label {
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.control {
+  width: 100%;
+  min-height: 3.25rem;
+  padding: 0.75rem 0.9rem;
+  background: #fff;
+  color: var(--ink);
+  border: 1px solid color-mix(in srgb, var(--ink) 55%, transparent);
+  border-radius: 10px;
+  font: inherit;
+  font-size: 1.0625rem;
+  line-height: 1.4;
+  transition: border-color 200ms var(--ease);
+}
+
+.control:hover {
+  border-color: var(--ink);
+}
+
+.control:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-color: var(--ink);
+}
+
+textarea.control {
+  min-height: 9rem;
+  resize: vertical;
+}
+
+select.control {
+  appearance: none;
+  padding-right: 2.75rem;
+  background-image:
+    linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position:
+    calc(100% - 1.4rem) 55%,
+    calc(100% - 1.05rem) 55%;
+  background-size:
+    0.35rem 0.35rem,
+    0.35rem 0.35rem;
+  background-repeat: no-repeat;
+}
+
+.form-note {
+  padding: 1rem 1.1rem;
+  background: var(--tint);
+  border-radius: 10px;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* ==========================================================================
+   FOOTER (the only dark section): four columns on the content grid.
+   Body text about 85% white, labels and muted lines about 55%.
+   ========================================================================== */
+.site-footer {
+  --footer-text: color-mix(in srgb, var(--bg) 85%, var(--ink));
+  --footer-muted: color-mix(in srgb, var(--bg) 55%, var(--ink));
+  margin-top: var(--section-gap);
+  background: var(--ink);
+  color: var(--footer-text);
+}
+
+.site-footer a {
+  text-decoration: none;
+  transition: color 200ms var(--ease);
+}
+
+.site-footer a:hover,
+.site-footer a:focus-visible {
+  color: var(--bg);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.28em;
+}
+
+.footer-grid {
+  display: grid;
+  align-items: start;
+  gap: 2.25rem var(--gap-grid);
+  padding-block: 4rem 3rem;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+@media (min-width: 40rem) {
+  .footer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 75rem) {
+  .footer-grid {
+    grid-template-columns: 1.6fr 1fr 1fr 1fr;
+  }
+}
+
+.footer-logo {
+  display: block;
+  width: 7.5rem;
+  color: #fff;
+}
+
+.footer-logo svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.footer-line {
+  margin-top: 1.25rem;
+  max-width: 30ch;
+}
+
+.footer-member {
+  margin-top: 0.625rem;
+  font-size: 0.875rem;
+  color: var(--footer-muted);
+}
+
+.footer-label {
+  margin-bottom: 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--footer-muted);
+}
+
+.footer-list {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.footer-list--tight {
+  gap: 0.375rem;
+}
+
+/* The email fits at every width tested; this only matters if a font runs wider. */
+.footer-email {
+  overflow-wrap: anywhere;
+}
+
+.footer-social {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.footer-social svg {
+  width: 1.125rem;
+  height: 1.125rem;
+  flex: none;
+}
+
+.footer-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem 2rem;
+  padding-block: 1.25rem 2rem;
+  border-top: 1px solid color-mix(in srgb, var(--bg) 25%, transparent);
+  font-size: 0.875rem;
+  color: var(--footer-muted);
 }
