@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import { StyleSwitcher } from "@/components/StyleSwitcher";
 import { body, display } from "./fonts";
 import "./globals.css";
@@ -28,6 +29,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body>
         {children}
         {process.env.NEXT_PUBLIC_STYLE_SWITCHER === "true" && <StyleSwitcher />}
+        <Analytics />
       </body>
     </html>
   );
